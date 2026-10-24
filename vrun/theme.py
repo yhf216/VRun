@@ -121,6 +121,7 @@ QComboBox QAbstractItemView {{
 }}
 QComboBox QAbstractItemView::item {{ min-height: 29px; padding-left: 8px; }}
 QCheckBox {{ spacing: 7px; }}
+QCheckBox:disabled {{ color: {p['disabled']}; }}
 QCheckBox::indicator {{ width: 15px; height: 15px; border: 1px solid {p['border']}; border-radius: 4px; background: {p['field']}; }}
 QCheckBox::indicator:checked {{ background: {p['accent']}; border-color: {p['accent']}; image: url("{check}"); }}
 QPushButton {{ background: {p['field']}; color: {p['text']}; border: 1px solid {p['border']}; border-radius: 9px; padding: 9px 18px; min-height: 20px; font-weight: 600; }}
@@ -128,7 +129,7 @@ QPushButton#start {{ background: {p['accent']}; color: {p['accent_text']}; borde
 QPushButton#start:hover {{ background: {p['hover']}; }}
 QPushButton#stop {{ background: {p['surface']}; color: {p['text']}; border: 1px solid {p['border']}; }}
 QPushButton#stop:hover {{ background: {p['field']}; }}
-QPushButton:disabled {{ background: {p['disabled_bg']}; color: {p['disabled']}; border: 1px solid {p['border']}; }}
+QPushButton#start:disabled, QPushButton#stop:disabled {{ background: {p['disabled_bg']}; color: {p['disabled']}; border: 1px solid {p['border']}; }}
 QProgressBar {{ background: {p['track']}; border: none; border-radius: 3px; height: 5px; }}
 QProgressBar::chunk {{ background: {p['ink']}; border-radius: 3px; }}
 QScrollBar:vertical {{ background: {p['background']}; width: 8px; border: none; }}
