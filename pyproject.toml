@@ -1,0 +1,16 @@
+[project]
+name = "vrun"
+version = "0.1.0"
+description = "Windows desktop virtual running for iOS 15 and 16"
+requires-python = ">=3.10,<3.16"
+license = "MPL-2.0"
+dependencies = [
+    "PySide6-Essentials==6.12.0",
+    "geopy==2.4.1",
+    "winotify==1.1.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--basetemp=build/pytest"
+pythonpath = ["."]

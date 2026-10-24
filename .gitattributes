@@ -1,0 +1,12 @@
+* text=auto
+*.py text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.txt text eol=lf
+*.iss text eol=crlf
+*.exe -text
+*.dll -text
+*.dmg -text
+*.signature -text
+*.ico -text
+*.zip -text

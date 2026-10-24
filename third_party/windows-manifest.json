@@ -1,0 +1,54 @@
+{
+  "upstream": "iOSRealRun/iOSRealRun-cli",
+  "baseline": "1710c72a60a704996bcf7d7b5e5f92f49687af39",
+  "files": [
+    {
+      "name": "idevicedevmodectl.exe",
+      "sha256": "acb3afed4f7b76abc01c682a79eb17cecb8a54871a6d8ff278d2d8a738f0ecc9"
+    },
+    {
+      "name": "ideviceimagemounter.exe",
+      "sha256": "5d61720ce0cc66e378e02149aa4c6ca39c7433bf1ccc815a44137fac655bc38e"
+    },
+    {
+      "name": "ideviceinfo.exe",
+      "sha256": "22c54700eecdc59f2708317eaee48aaf38e809454358db367ec4f2106bed0550"
+    },
+    {
+      "name": "idevicepair.exe",
+      "sha256": "04a42912c6598d44d443462e9aa95404296f66aabb826d63c0fc5b367390ed64"
+    },
+    {
+      "name": "idevicesetlocation.exe",
+      "sha256": "849791239b920ae2bc5e54bb09582e0fc3be2edcc823d72d4f53e497b52a0d1f"
+    },
+    {
+      "name": "libcrypto-3-x64.dll",
+      "sha256": "9205b37a09bde428489e7f7855a8e16c463c491fd9a26ce53a23e7b077536f10"
+    },
+    {
+      "name": "libimobiledevice-1.0.dll",
+      "sha256": "04499600118ea3aa7270c4d05fa4f8691de477c784f725f84c84a317bc3a30d9"
+    },
+    {
+      "name": "libimobiledevice-glue-1.0.dll",
+      "sha256": "ba522bc6575adbc8c21f04b225a87d65bdd95e942d7d469a41cf33cc0285d36c"
+    },
+    {
+      "name": "libplist++-2.0.dll",
+      "sha256": "e8ad688e79a81171eb6619c75d56d9d2b77e83dc6fdb2be5552d1165f71a7a07"
+    },
+    {
+      "name": "libplist-2.0.dll",
+      "sha256": "8825da6f796a0edfec6c02e026a6a984fcb577ebf33cc3cb38df252e258c7377"
+    },
+    {
+      "name": "libssl-3-x64.dll",
+      "sha256": "e8bd5af12eee88a6b4d7003128dbb1a4854fcdde598f2480c9a2901a962b6ece"
+    },
+    {
+      "name": "libusbmuxd-2.0.dll",
+      "sha256": "91be6b96d35f90dc80af7f5af95b3b676ad2809de286fa6c569c0e5aaeb3989d"
+    }
+  ]
+}
