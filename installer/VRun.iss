@@ -1,5 +1,5 @@
 ﻿; SPDX-License-Identifier: MPL-2.0
-#define AppVersion "0.1.0"
+#define AppVersion "0.2.0"
 [Setup]
 AppId={{BF65DE62-0A7C-48A4-B1E4-09B86F0B9457}
 AppName=VRun
@@ -7,6 +7,8 @@ AppVersion={#AppVersion}
 AppPublisher=VRun contributors
 AppPublisherURL=https://github.com/yhf216/VRun
 DefaultDirName={autopf}\VRun
+UsePreviousAppDir=yes
+UsePreviousTasks=yes
 DefaultGroupName=VRun
 DisableProgramGroupPage=yes
 AllowNoIcons=yes
@@ -23,9 +25,10 @@ Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 CloseApplications=yes
+CloseApplicationsFilter=*.exe,*.dll,*.pyd
 RestartApplications=no
 MinVersion=10.0
-VersionInfoVersion=0.1.0.0
+VersionInfoVersion=0.2.0.0
 
 [Languages]
 Name: "chinesesimp"; MessagesFile: "compiler:Default.isl,ChineseSimplified.isl"

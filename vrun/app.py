@@ -3,53 +3,30 @@ from pathlib import Path
 import argparse
 import ctypes
 import logging
+import math
 import os
 import sys
 import time
 
-from PySide6.QtCore import QSettings, Qt, QTimer, QPointF
-from PySide6.QtGui import QColor, QFont, QFontDatabase, QIcon, QPainter, QPainterPath, QPen
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDoubleSpinBox,
-                             QFrame, QHBoxLayout, QLabel, QMainWindow, QMessageBox,
-                             QPushButton, QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
+from PySide6.QtCore import QSettings, Qt, QTimer
+from PySide6.QtGui import QColor, QFont, QFontDatabase, QIcon
+from PySide6.QtWidgets import (QApplication, QCheckBox, QFrame, QHBoxLayout, QLabel,
+                             QMainWindow, QMessageBox, QProgressBar, QPushButton,
+                             QScrollArea, QVBoxLayout, QWidget)
 
-from . import __version__
-from .device import DeviceBackend
+from . import __version__, theme
+from .device import Device, DeviceBackend
 from .paths import app_dir, data_dir, resource_dir
 from .routes import load_route, pace_text
+from .widgets import ChoiceBox, RoutePreview, SpeedInput
 from .worker import ProbeWorker, RunWorker, RestoreWorker
 
 LOG = logging.getLogger(__name__)
 
-STYLE = """
-QMainWindow, QWidget#root { background: #f3f7fd; color: #182c49; }
-QWidget { font-family: "Microsoft YaHei UI", "Segoe UI"; font-size: 13px; color: #263b58; }
-QFrame#card { background: white; border: 1px solid #e3ebf6; border-radius: 16px; }
-QLabel { background: transparent; border: none; }
-QLabel#brand { font-size: 32px; font-weight: 800; color: #2463db; }
-QLabel#muted { color: #7788a0; font-size: 12px; }
-QLabel#section { font-size: 15px; font-weight: 700; color: #213c63; }
-QLabel#number { color: #205ed5; font-size: 35px; font-weight: 700; }
-QLabel#message { padding: 12px 14px; border: 1px solid #dae7fc; border-radius: 10px; color: #365c92; background: #eaf2ff; }
-QComboBox, QDoubleSpinBox { background: #f8faff; border: 1px solid #d7e2f1; border-radius: 9px; padding: 9px 11px; min-height: 23px; font-size: 14px; }
-QComboBox:focus, QDoubleSpinBox:focus { border: 1px solid #3b7af3; }
-QComboBox:disabled, QDoubleSpinBox:disabled { color: #8d9bb1; background: #f1f4f9; }
-QComboBox QAbstractItemView { background: white; selection-background-color: #dfebff; selection-color: #17478e; border: 1px solid #d7e2f1; }
-QCheckBox { spacing: 8px; }
-QCheckBox::indicator { width: 17px; height: 17px; }
-QPushButton { border-radius: 10px; padding: 11px 21px; min-height: 24px; font-weight: 600; }
-QPushButton#start { background: #2868e4; color: white; border: 1px solid #2868e4; }
-QPushButton#start:hover { background: #1d57ca; }
-QPushButton#stop { background: white; color: #315782; border: 1px solid #cbdaf0; }
-QPushButton#stop:hover { background: #eaf2ff; }
-QPushButton:disabled { background: #e5ebf5; color: #a1aec1; border: 1px solid #e5ebf5; }
-QMenuBar { background: #f3f7fd; }
-QMenu { background: white; padding: 5px; }
-"""
-
 
 def label(text="", name=None):
     widget = QLabel(text)
+    widget.setTextFormat(Qt.PlainText)
     if name:
         widget.setObjectName(name)
     return widget
@@ -59,47 +36,9 @@ def card():
     widget = QFrame()
     widget.setObjectName("card")
     layout = QVBoxLayout(widget)
-    layout.setContentsMargins(20, 18, 20, 18)
-    layout.setSpacing(12)
+    layout.setContentsMargins(16, 12, 16, 12)
+    layout.setSpacing(7)
     return widget, layout
-
-
-class RoutePreview(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.route = None
-        self.setMinimumHeight(140)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.fillRect(self.rect(), QColor("#f7faff"))
-        painter.setPen(QPen(QColor("#e8eff9"), 1))
-        for x in range(0, self.width(), 28):
-            painter.drawLine(x, 0, x, self.height())
-        for y in range(0, self.height(), 28):
-            painter.drawLine(0, y, self.width(), y)
-        if not self.route:
-            return
-        points = self.route.points
-        average_lat = sum(p.lat for p in points) / len(points)
-        import math
-        coords = [(p.lng * math.cos(math.radians(average_lat)), -p.lat) for p in points]
-        min_x, max_x = min(x for x, _ in coords), max(x for x, _ in coords)
-        min_y, max_y = min(y for _, y in coords), max(y for _, y in coords)
-        scale = min((self.width() - 44) / max(max_x - min_x, 1e-9),
-                    (self.height() - 30) / max(max_y - min_y, 1e-9))
-        mapped = [QPointF(self.width()/2 + (x-(min_x+max_x)/2)*scale,
-                         self.height()/2 + (y-(min_y+max_y)/2)*scale) for x, y in coords]
-        path = QPainterPath(mapped[0])
-        for point in mapped[1:]:
-            path.lineTo(point)
-        painter.setPen(QPen(QColor("#2868e4"), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-        painter.drawPath(path)
-        painter.setPen(QPen(Qt.white, 2))
-        painter.setBrush(QColor("#38bfa2"))
-        painter.drawEllipse(mapped[0], 5, 5)
 
 
 class Window(QMainWindow):
@@ -107,28 +46,32 @@ class Window(QMainWindow):
         super().__init__()
         self.backend = backend or DeviceBackend()
         self.settings = settings if settings is not None else QSettings("VRun", "VRun")
-        self.worker = None
-        self.probe_worker = None
-        self.route = None
-        self._closing = False
-        self._allow_close = False
+        self.worker = self.probe_worker = self.route = None
+        self._closing = self._allow_close = False
         self._run_started = None
         self._last_restore_failed = False
-        self._last_run_error = None
-        self._pending_restore = None
-        self._pending_start = False
+        self._last_run_error = self._pending_restore = None
+        self._pending_start = self._applying_theme = False
+        self.palette_colors = {}
         self.setWindowTitle(f"VRun · 虚拟跑步  {__version__}")
         self.setWindowIcon(QIcon(str(resource_dir() / "assets" / "vrun.ico")))
-        self.resize(960, 850)
-        self.setMinimumSize(850, 660)
-        self.setStyleSheet(STYLE)
+        self.resize(850, 700)
+        self.setMinimumSize(760, 600)
         self._create_ui()
         self._load_routes()
-        self.speed.setValue(float(self.settings.value("speed", 3.3)))
+        try:
+            saved_speed = float(self.settings.value("speed", 3.3))
+        except (TypeError, ValueError):
+            saved_speed = 3.3
+        self.speed.setValue(saved_speed if math.isfinite(saved_speed) and 0.1 <= saved_speed <= 15 else 3.3)
         self.target.setCurrentText(str(self.settings.value("target", "2 km")))
         self.remind.setChecked(str(self.settings.value("remind", "true")).lower() == "true")
         self._update_pace()
         self._update_reminder()
+        self.theme_choice.currentIndexChanged.connect(self.apply_theme)
+        QApplication.styleHints().colorSchemeChanged.connect(self._system_appearance_changed)
+        QApplication.instance().paletteChanged.connect(self._system_appearance_changed)
+        self.apply_theme()
         self.clock = QTimer(self)
         self.clock.timeout.connect(self._tick)
         self.clock.start(1000)
@@ -142,127 +85,206 @@ class Window(QMainWindow):
     def _create_ui(self):
         root = QWidget()
         root.setObjectName("root")
+        root.setMinimumHeight(640)
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll.setWidget(root)
         self.setCentralWidget(scroll)
-        root.setMinimumHeight(790)
         page = QVBoxLayout(root)
-        page.setContentsMargins(28, 18, 28, 24)
-        page.setSpacing(16)
+        page.setContentsMargins(20, 14, 20, 16)
+        page.setSpacing(10)
+
         header = QHBoxLayout()
-        brand = QVBoxLayout()
-        brand.addWidget(label("VRun", "brand"))
-        brand.addWidget(label("iPhone 虚拟跑步与定位模拟", "muted"))
-        header.addLayout(brand)
+        header.addWidget(label("VRun", "brand"))
+        header.addWidget(label("虚拟跑步", "muted"))
         header.addStretch()
-        self.run_state = label("●  未运行")
-        self.run_state.setStyleSheet("color: #6c829e; font-weight: 600;")
+        self.run_state = label("●  未运行", "runState")
+        self.run_state.setProperty("active", False)
         header.addWidget(self.run_state)
+        header.addSpacing(12)
+        self.theme_choice = ChoiceBox()
+        self.theme_choice.setObjectName("themeSelector")
+        self.theme_choice.setFixedWidth(126)
+        self.theme_choice.setToolTip("外观：跟随 Windows 或手动选择明暗主题")
+        for name, value in (("跟随系统", "system"), ("浅色", "light"), ("深色", "dark")):
+            self.theme_choice.addItem(name, value)
+        preference = str(self.settings.value("theme", "system"))
+        index = self.theme_choice.findData(preference)
+        self.theme_choice.setCurrentIndex(max(0, index))
+        header.addWidget(self.theme_choice)
         page.addLayout(header)
 
         device_card, device_layout = card()
+        device_layout.setContentsMargins(14, 9, 14, 9)
         row = QHBoxLayout()
         details = QVBoxLayout()
+        details.setSpacing(2)
         self.device_name = label("连接你的 iPhone", "section")
-        self.device_hint = label("通过 USB 连接手机，解锁并确认“信任此电脑”。", "muted")
+        self.device_hint = label("通过 USB 连接并解锁手机，确认“信任此电脑”。", "muted")
+        self.device_hint.setWordWrap(True)
         details.addWidget(self.device_name)
         details.addWidget(self.device_hint)
-        row.addLayout(details)
-        row.addStretch()
-        self.connection = label("未连接")
-        self.connection.setStyleSheet("color: #8190a6;")
+        row.addLayout(details, 1)
+        self.connection = label("未连接", "connection")
+        self.connection.setProperty("connected", False)
         row.addWidget(self.connection)
         device_layout.addLayout(row)
         page.addWidget(device_card)
 
+        stats = QHBoxLayout()
+        stats.setSpacing(10)
+        self.stats_cards = []
+        self.laps = self._stat(stats, "完成圈数", "0", "圈")
+        self.distance = self._stat(stats, "模拟估算距离", "0.00", "公里")
+        self.elapsed = self._stat(stats, "运动时间", "00:00", "")
+        page.addLayout(stats)
+
         middle = QHBoxLayout()
-        middle.setSpacing(16)
-        route_card, route_layout = card()
-        route_card.setMinimumHeight(310)
-        route_layout.addWidget(label("运动路线", "section"))
-        self.routes = QComboBox()
+        middle.setSpacing(10)
+        self.route_card, route_layout = card()
+        self.route_card.setMinimumHeight(256)
+        route_header = QHBoxLayout()
+        route_header.addWidget(label("运动路线", "section"))
+        route_header.addStretch()
+        self.lap_progress = label("本圈 0%", "muted")
+        route_header.addWidget(self.lap_progress)
+        route_layout.addLayout(route_header)
+        self.routes = ChoiceBox()
         self.routes.setObjectName("routeSelector")
         self.routes.currentIndexChanged.connect(self._select_route)
         route_layout.addWidget(self.routes)
         self.preview = RoutePreview()
         route_layout.addWidget(self.preview, 1)
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setObjectName("lapProgress")
+        self.progress_bar.setRange(0, 1000)
+        self.progress_bar.setValue(0)
+        self.progress_bar.setTextVisible(False)
+        self.progress_bar.setFixedHeight(5)
+        route_layout.addWidget(self.progress_bar)
         self.route_info = label("", "muted")
         route_layout.addWidget(self.route_info)
-        middle.addWidget(route_card, 1)
+        middle.addWidget(self.route_card, 1)
 
         options_card, options = card()
-        options_card.setMinimumHeight(310)
-        options.setSpacing(8)
+        options_card.setMinimumHeight(256)
+        options.setSpacing(6)
         options.addWidget(label("跑步设置", "section"))
         options.addWidget(label("运动速度"))
         speed_row = QHBoxLayout()
-        self.speed = QDoubleSpinBox()
+        speed_row.setSpacing(8)
+        self.speed = SpeedInput()
         self.speed.setObjectName("speedInput")
-        self.speed.setRange(0.1, 15.0)
-        self.speed.setDecimals(2)
-        self.speed.setSingleStep(0.1)
-        self.speed.setSuffix(" m/s")
         self.speed.valueChanged.connect(self._update_pace)
         speed_row.addWidget(self.speed, 1)
         self.pace = label("", "muted")
         speed_row.addWidget(self.pace)
         options.addLayout(speed_row)
         options.addWidget(label("预期提醒距离"))
-        self.target = QComboBox()
+        self.target = ChoiceBox()
         self.target.setObjectName("targetInput")
         self.target.setEditable(True)
         self.target.addItems(["2 km", "3 km"])
         self.target.lineEdit().setMaxLength(20)
+        self.target.lineEdit().setPlaceholderText("例如 2.5 km")
         options.addWidget(self.target)
         self.remind = QCheckBox("达到目标后发送 Windows 提醒")
         self.remind.toggled.connect(self._update_reminder)
         options.addWidget(self.remind)
-        note = label("也可以直接输入其他公里数。\n达到目标后继续运行，每次运动只提醒一次。", "muted")
-        note.setWordWrap(True)
-        options.addWidget(note)
+        options.addWidget(label("支持自定义公里数；达标仅提醒，继续运动。", "muted"))
         options.addStretch()
         middle.addWidget(options_card, 1)
         page.addLayout(middle, 1)
 
-        stats = QHBoxLayout()
-        stats.setSpacing(16)
-        self.laps = self._stat(stats, "完成圈数", "0", "圈")
-        self.distance = self._stat(stats, "模拟估算距离", "0.00", "公里")
-        self.elapsed = self._stat(stats, "运动时间", "00:00", "每完成一圈更新圈数与距离")
-        page.addLayout(stats)
-        self.message = label("选择路线与速度，点击开始。请在运行期间保持 USB 连接。", "message")
+        self.message = label("选择路线与速度，点击开始。运行期间请保持 USB 连接。", "message")
         self.message.setWordWrap(True)
-        self.message.setMinimumHeight(42)
         page.addWidget(self.message)
         footer = QHBoxLayout()
-        disclaimer = label("距离为模拟估算值，可能与手机应用统计不同。", "muted")
-        footer.addWidget(disclaimer, 1)
+        footer.addWidget(label("停止后会发送恢复正常定位命令。", "muted"), 1)
         self.stop_button = QPushButton("停止并恢复定位")
         self.stop_button.setObjectName("stop")
         self.stop_button.setEnabled(False)
         self.stop_button.clicked.connect(self.stop)
         self.start_button = QPushButton("开始")
         self.start_button.setObjectName("start")
-        self.start_button.setMinimumWidth(112)
+        self.start_button.setMinimumWidth(108)
         self.start_button.clicked.connect(self.start)
         footer.addWidget(self.stop_button)
         footer.addWidget(self.start_button)
         page.addLayout(footer)
-        about = self.menuBar().addMenu("帮助")
-        about.addAction("关于与开源许可", self._about)
 
     def _stat(self, row, title, value, unit):
         widget, layout = card()
-        layout.setSpacing(4)
-        layout.setContentsMargins(18, 14, 18, 14)
+        layout.setContentsMargins(14, 9, 14, 9)
+        layout.setSpacing(2)
         layout.addWidget(label(title, "muted"))
+        values = QHBoxLayout()
         number = label(value, "number")
-        layout.addWidget(number)
-        layout.addWidget(label(unit, "muted"))
+        values.addWidget(number)
+        values.addWidget(label(unit, "muted"), 0, Qt.AlignBottom)
+        values.addStretch()
+        layout.addLayout(values)
+        self.stats_cards.append(widget)
         row.addWidget(widget, 1)
         return number
+
+    def _system_appearance_changed(self, *_):
+        self.apply_theme()
+
+    def apply_theme(self, *_):
+        if self._applying_theme:
+            return
+        self._applying_theme = True
+        try:
+            mode = self.theme_choice.currentData() or "system"
+            self.palette_colors = theme.colors(mode)
+            self.setStyleSheet(theme.stylesheet(self.palette_colors))
+            self.speed.unit_color = QColor(self.palette_colors["muted"])
+            self.speed.update()
+            self.preview.colors = self.palette_colors
+            self.preview.update()
+            self.settings.setValue("theme", mode)
+            theme.titlebar(self, self.palette_colors["dark"])
+        finally:
+            self._applying_theme = False
+
+    def _connected(self, device):
+        self.device_name.setText(device.name)
+        self.device_hint.setText(f"iOS {device.version}  ·  请保持 USB 连接")
+        self.connection.setText("已连接")
+        self.connection.setProperty("connected", True)
+        self._refresh_style(self.connection)
+
+    def _disconnected(self, reason):
+        self.connection.setText("未连接")
+        self.connection.setProperty("connected", False)
+        self._refresh_style(self.connection)
+        self.device_name.setText("连接你的 iPhone")
+        self.device_hint.setText(reason)
+
+    @staticmethod
+    def _refresh_style(widget):
+        widget.style().unpolish(widget)
+        widget.style().polish(widget)
+        widget.update()
+
+    def _ready(self, device):
+        self._connected(device)
+        self._run_started = time.monotonic()
+        self.run_state.setText("●  运行中")
+        self.run_state.setProperty("active", True)
+        self._refresh_style(self.run_state)
+        self.preview.set_running(True)
+        self.message.setText("正在运行。图中显示本圈位置与已走路段，圈数和距离在每圈结束时更新。")
+
+    def _on_progress(self, fraction):
+        fraction = max(0.0, min(1.0, fraction))
+        self.preview.set_progress(fraction)
+        self.progress_bar.setValue(round(fraction * 1000))
+        prefix = f"第 {int(self.laps.text()) + 1} 圈" if self._run_started is not None else "本圈"
+        self.lap_progress.setText(f"{prefix} · {fraction:.0%}")
 
     def _load_routes(self):
         directory = app_dir() / "routes"
@@ -289,8 +311,8 @@ class Window(QMainWindow):
         except (ValueError, OSError, UnicodeError) as error:
             self.message.setText(str(error))
             self.route_info.setText("无法读取路线")
-        self.preview.route = self.route
-        self.preview.update()
+        self.preview.set_route(self.route)
+        self._on_progress(0)
         self.start_button.setEnabled(self.route is not None and self.worker is None and self._pending_restore is None)
 
     def _update_pace(self, *_):
@@ -298,19 +320,6 @@ class Window(QMainWindow):
 
     def _update_reminder(self, *_):
         self.target.setEnabled(self.remind.isChecked() and self.worker is None)
-
-    def _connected(self, device):
-        self.device_name.setText(device.name)
-        self.device_hint.setText(f"iOS {device.version}  ·  请保持 USB 连接")
-        self.connection.setText("已连接")
-        self.connection.setStyleSheet("color: #149779; font-weight: 600;")
-
-    def _disconnected(self, reason):
-        self.connection.setText("未连接")
-        self.connection.setStyleSheet("color: #8190a6;")
-        self.device_name.setText("连接你的 iPhone")
-        self.device_hint.setText(reason)
-        self.device_hint.setWordWrap(True)
 
     def _probe(self):
         if self._closing or self._pending_start or self.worker is not None or self.probe_worker is not None:
@@ -359,17 +368,23 @@ class Window(QMainWindow):
             self.probe_worker.cancel.set()
             self.message.setText("正在连接手机，请稍候…")
             return
+        speed = self.speed.value()
+        if not math.isfinite(speed) or not 0.1 <= speed <= 15:
+            self.message.setText("请输入 0.1 至 15 之间的运动速度（m/s）。")
+            return
         self._last_restore_failed = False
         self._last_run_error = None
         self.laps.setText("0")
         self.distance.setText("0.00")
         self.elapsed.setText("00:00")
         self._run_started = None
+        self._on_progress(0)
         self._set_controls(True)
         worker = RunWorker(self.backend, self.route, self.speed.value(), target, self)
         self.worker = worker
         worker.ready.connect(self._ready)
         worker.message.connect(self.message.setText)
+        worker.progress.connect(self._on_progress)
         worker.lap.connect(self._lap)
         worker.target_reached.connect(self._notify)
         worker.failed.connect(self._failed)
@@ -377,13 +392,6 @@ class Window(QMainWindow):
         worker.finished.connect(self._run_finished)
         self.message.setText("正在准备设备，请保持手机解锁…")
         worker.start()
-
-    def _ready(self, device):
-        self._connected(device)
-        self._run_started = time.monotonic()
-        self.run_state.setText("●  运行中")
-        self.run_state.setStyleSheet("color: #2463db; font-weight: 600;")
-        self.message.setText("正在运行。每完成一圈更新距离，达到目标后提醒并继续运行。")
 
     def _set_controls(self, running):
         self.start_button.setEnabled(not running and self.route is not None and self._pending_restore is None)
@@ -444,7 +452,9 @@ class Window(QMainWindow):
         if worker:
             worker.deleteLater()
         self.run_state.setText("●  未运行")
-        self.run_state.setStyleSheet("color: #6c829e; font-weight: 600;")
+        self.run_state.setProperty("active", False)
+        self._refresh_style(self.run_state)
+        self.preview.set_running(False)
         self._set_controls(False)
         if self._last_restore_failed:
             QMessageBox.warning(self, "请检查手机定位", self.message.text())
@@ -456,18 +466,16 @@ class Window(QMainWindow):
             self.elapsed.setText(f"{seconds // 3600:02d}:{seconds // 60 % 60:02d}:{seconds % 60:02d}" if seconds >= 3600
                                  else f"{seconds // 60:02d}:{seconds % 60:02d}")
 
-    def _about(self):
-        QMessageBox.about(self, "关于 VRun",
-            f"VRun {__version__}\nWindows 桌面虚拟跑步工具 · iOS 17 以下\n\n"
-            "基于 iOSRealRun/iOSRealRun-cli 修改，保留上游提交历史。\n"
-            "应用源码：MPL-2.0；设备工具及其他组件按各自许可证分发。\n"
-            "完整许可位于安装目录 LICENSES，应用对应源码位于 SOURCE。\n\n"
-            "源码：https://github.com/yhf216/VRun\n"
-            "上游：https://github.com/iOSRealRun/iOSRealRun-cli")
-
     def closeEvent(self, event):
         if self._allow_close:
-            self.settings.setValue("speed", self.speed.value())
+            if math.isfinite(self.speed.value()) and 0.1 <= self.speed.value() <= 15:
+                self.settings.setValue("speed", self.speed.value())
+            self.preview.set_running(False)
+            try:
+                QApplication.styleHints().colorSchemeChanged.disconnect(self._system_appearance_changed)
+                QApplication.instance().paletteChanged.disconnect(self._system_appearance_changed)
+            except (RuntimeError, TypeError):
+                pass
             self.settings.setValue("target", self.target.currentText())
             self.settings.setValue("remind", "true" if self.remind.isChecked() else "false")
             if self.route:
@@ -490,16 +498,18 @@ class Window(QMainWindow):
             QTimer.singleShot(0, self.close)
 
 
+
 def run():
     parser = argparse.ArgumentParser(description="VRun Windows desktop application")
     parser.add_argument("--screenshot", type=Path, help=argparse.SUPPRESS)
+    parser.add_argument("--theme", choices=("system", "light", "dark"), help=argparse.SUPPRESS)
+    parser.add_argument("--running-preview", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
     if args.screenshot:
         os.environ["QT_QPA_PLATFORM"] = "offscreen"
     if sys.platform == "win32":
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("VRun.Desktop")
-    log_dir = data_dir()
-    logging.basicConfig(filename=log_dir / "vrun.log", encoding="utf-8", level=logging.INFO,
+    logging.basicConfig(filename=data_dir() / "vrun.log", encoding="utf-8", level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(name)s %(message)s")
     application = QApplication(sys.argv[:1])
     if args.screenshot:
@@ -513,14 +523,26 @@ def run():
     application.setStyle("Fusion")
     if args.screenshot:
         args.screenshot.parent.mkdir(parents=True, exist_ok=True)
-        settings = QSettings(str(args.screenshot.parent / "preview.ini"), QSettings.IniFormat)
+        settings = QSettings(str(args.screenshot.parent / ("preview-" + (args.theme or "system") + ".ini")), QSettings.IniFormat)
+        if args.theme:
+            settings.setValue("theme", args.theme)
         window = Window(settings=settings, poll=False)
+        if args.running_preview:
+            window._set_controls(True)
+            window._ready(Device("preview", "iPhone X · 运行界面预览", "16.7.16"))
+            window._run_started = time.monotonic() - 462
+            window._tick()
+            window._lap(3, window.route.length_m * 3)
+            window._on_progress(0.43)
+            window.message.setText("运行界面预览：未连接或控制手机。当前位置与本圈进度会随运动实时更新。")
     else:
         window = Window()
+        if args.theme:
+            window.theme_choice.setCurrentIndex(window.theme_choice.findData(args.theme))
     window.show()
     if args.screenshot:
         def capture():
             window.grab().save(str(args.screenshot))
             window.close()
-        QTimer.singleShot(400, capture)
+        QTimer.singleShot(450, capture)
     return application.exec()

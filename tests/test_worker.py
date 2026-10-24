@@ -59,3 +59,22 @@ def test_cancel_before_start_does_not_change_location(application):
     worker.stop()
     worker.run()
     assert backend.events == []
+
+
+def test_progress_only_advances_after_successful_coordinate_updates(application):
+    backend = FakeBackend()
+    worker = RunWorker(backend, tiny_route(), 10, None)
+    updates = []
+    worker.progress.connect(lambda fraction: updates.append((fraction, len(backend.events))))
+    worker.lap.connect(lambda *args: worker.stop())
+    worker.run()
+    assert [entry[0] for entry in updates] == pytest.approx([0, 0.5, 1])
+    assert [entry[1] for entry in updates] == [1, 2, 3]
+
+
+def test_failed_coordinate_update_does_not_advance_visual_progress(application):
+    worker = RunWorker(FakeBackend(fail_update=True), tiny_route(), 10, None)
+    updates = []
+    worker.progress.connect(updates.append)
+    worker.run()
+    assert updates == []

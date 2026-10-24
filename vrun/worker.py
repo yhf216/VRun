@@ -30,6 +30,7 @@ class RunWorker(QThread):
     ready = Signal(object)
     message = Signal(str)
     lap = Signal(int, float)
+    progress = Signal(float)
     target_reached = Signal(float)
     failed = Signal(str)
     restored = Signal(bool, str)
@@ -56,13 +57,17 @@ class RunWorker(QThread):
             self.ready.emit(device)
             location_attempted = True
             self.backend.set_location(device, self.route.points[0], self.cancel)
+            self.progress.emit(0.0)
             deadline = time.monotonic()
             while not self.cancel.is_set():
+                lap_moved = 0.0
                 for point, duration in self.route.samples(self.speed):
                     deadline += duration
                     if self.cancel.wait(max(0, deadline - time.monotonic())):
                         raise Cancelled()
                     self.backend.set_location(device, point, self.cancel)
+                    lap_moved += duration * self.speed
+                    self.progress.emit(min(1.0, lap_moved / self.route.length_m))
                     # A delayed USB command must not cause a burst of catch-up updates.
                     if time.monotonic() - deadline > duration:
                         deadline = time.monotonic()
