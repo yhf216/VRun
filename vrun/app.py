@@ -116,6 +116,7 @@ class Window(QMainWindow):
         self._last_restore_failed = False
         self._last_run_error = None
         self._pending_restore = None
+        self._pending_start = False
         self.setWindowTitle(f"VRun · 虚拟跑步  {__version__}")
         self.setWindowIcon(QIcon(str(resource_dir() / "assets" / "vrun.ico")))
         self.resize(960, 850)
@@ -312,7 +313,7 @@ class Window(QMainWindow):
         self.device_hint.setWordWrap(True)
 
     def _probe(self):
-        if self._closing or self.worker is not None or self.probe_worker is not None:
+        if self._closing or self._pending_start or self.worker is not None or self.probe_worker is not None:
             return
         worker = ProbeWorker(self.backend, self)
         self.probe_worker = worker
@@ -326,6 +327,9 @@ class Window(QMainWindow):
         self.probe_worker = None
         if worker:
             worker.deleteLater()
+        if self._pending_start and not self._closing:
+            self._pending_start = False
+            QTimer.singleShot(0, self.start)
         self._finish_close()
 
     def _target_m(self):
@@ -350,7 +354,10 @@ class Window(QMainWindow):
             self.message.setText(str(error))
             return
         if self.probe_worker is not None:
-            self.message.setText("正在检查手机，请稍后再次点击开始。")
+            self._pending_start = True
+            self.start_button.setEnabled(False)
+            self.probe_worker.cancel.set()
+            self.message.setText("正在连接手机，请稍候…")
             return
         self._last_restore_failed = False
         self._last_run_error = None
@@ -469,6 +476,7 @@ class Window(QMainWindow):
             return
         event.ignore()
         self._closing = True
+        self._pending_start = False
         self.poll_timer.stop()
         if self.probe_worker:
             self.probe_worker.cancel.set()

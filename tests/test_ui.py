@@ -47,3 +47,29 @@ def test_preparation_failure_returns_to_idle(window, application):
     assert window.start_button.isEnabled()
     assert "解锁手机" in window.message.text()
     assert window.laps.text() == "0"
+
+
+def test_start_during_probe_is_queued_once(window, application):
+    import threading
+    from vrun.device import Cancelled
+    entered = threading.Event()
+    prepares = []
+    class SlowProbeBackend:
+        def probe(self, cancel):
+            entered.set()
+            cancel.wait(2)
+            raise Cancelled()
+        def prepare(self, cancel, status):
+            prepares.append(True)
+            raise DeviceError("prepare reached")
+    window.backend = SlowProbeBackend()
+    window._probe()
+    assert entered.wait(1)
+    window.start()
+    deadline = time.monotonic() + 3
+    while (not prepares or window.worker is not None or window.probe_worker is not None) and time.monotonic() < deadline:
+        application.processEvents()
+        time.sleep(0.005)
+    assert prepares == [True]
+    assert window.worker is None
+    assert window.start_button.isEnabled()
