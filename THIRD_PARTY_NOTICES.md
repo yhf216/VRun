@@ -34,4 +34,6 @@ Binary hashes and known source identifiers are recorded in third_party/windows-m
 
 Apple components are separate proprietary software obtained from official endpoints at install time. No Apple USB driver is modified or re-signed. Existing system Apple components are not uninstalled by the VRun uninstaller.
 
+The Simplified Chinese installer translation is adapted from the official Inno Setup source at https://github.com/jrsoftware/issrc/blob/main/Files/Languages/ChineseSimplified.isl. Original translator notices are retained in installer/ChineseSimplified.isl; unsupported newer message keys were omitted for compiler compatibility.
+
 Inno Setup is a build tool, not an application runtime dependency. Its compiler license is retained in the build-tool installation; the application installer preserves its generated notices.
