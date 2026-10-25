@@ -62,7 +62,7 @@ pygnuutils==0.1.1
 pyimg4==0.8.8
 pyiosbackup==0.2.4
 pykdebugparser==1.10.0
-pylzss==0.3.4
+pylzss==0.3.9
 pymobiledevice3==11.44.0
 python-dateutil==3.0.0
 python-pcapng==2.1.1
