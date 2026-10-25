@@ -44,6 +44,7 @@ class DeviceBackend:
     def __init__(self, root: Path | None = None):
         self.root = root or resource_dir()
         self.tools = self.root / "libimobiledevice" / "win"
+        self._modern = None
 
     def command(self, tool: str, *args: str, timeout: float = 12,
                 cancel: threading.Event | None = None) -> str:
@@ -84,11 +85,9 @@ class DeviceBackend:
         try:
             data = plistlib.loads(output[output.index("<?xml"):].encode("utf-8"))
             device = Device(data["UniqueDeviceID"], data.get("DeviceName", "iPhone"), data["ProductVersion"])
-            major = int(device.version.split(".")[0])
+            int(device.version.split(".")[0])  # Validate the version before selecting a backend.
         except (ValueError, KeyError, plistlib.InvalidFileException) as error:
             raise DeviceError("无法读取手机信息，请解锁手机并确认信任此电脑。") from error
-        if major >= 17:
-            raise DeviceError(f"这台设备使用 iOS {device.version}。VRun 初版仅支持 iOS 17 以下版本。")
         return device
 
     def _mounted(self, device: Device, cancel: threading.Event) -> bool:
@@ -102,6 +101,8 @@ class DeviceBackend:
     def prepare(self, cancel: threading.Event, status) -> Device:
         status("正在检查手机，请保持 iPhone 解锁…")
         device = self.probe(cancel)
+        if self.is_modern(device):
+            return self._modern_backend().prepare(device, cancel, status)
         self.command("idevicepair", "-u", device.udid, "pair", cancel=cancel)
         if int(device.version.split(".")[0]) >= 16:
             output = self.command("idevicedevmodectl", "-u", device.udid, "list", cancel=cancel)
@@ -124,8 +125,26 @@ class DeviceBackend:
         return device
 
     def set_location(self, device: Device, point: Point, cancel: threading.Event):
+        if self.is_modern(device):
+            return self._modern_backend().set_location(device, point, cancel)
         self.command("idevicesetlocation", "-u", device.udid, "--", f"{point.lat:.8f}",
                      f"{point.lng:.8f}", timeout=8, cancel=cancel)
 
     def reset(self, device: Device):
+        if self.is_modern(device):
+            return self._modern_backend().reset(device)
         self.command("idevicesetlocation", "-u", device.udid, "reset", timeout=10)
+
+    @staticmethod
+    def is_modern(device: Device) -> bool:
+        return int(device.version.split(".")[0]) >= 17
+
+    def _modern_backend(self):
+        if self._modern is None:
+            from .modern import ModernBackend
+            self._modern = ModernBackend()
+        return self._modern
+
+    def close(self):
+        if self._modern is not None:
+            self._modern.close()

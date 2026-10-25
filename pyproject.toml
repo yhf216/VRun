@@ -1,13 +1,14 @@
 [project]
 name = "vrun"
-version = "0.2.0"
-description = "Windows desktop virtual running for iOS 15 and 16"
-requires-python = ">=3.10,<3.16"
+version = "0.3.0"
+description = "Windows desktop virtual running with legacy and iOS 17+ backends"
+requires-python = ">=3.14,<3.15"
 license = "MPL-2.0"
 dependencies = [
     "PySide6-Essentials==6.12.0",
     "geopy==2.4.1",
     "winotify==1.1.0",
+    "pymobiledevice3==11.44.0",
 ]
 
 [tool.pytest.ini_options]

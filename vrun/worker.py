@@ -91,6 +91,9 @@ class RunWorker(QThread):
                     self.restored.emit(False, "恢复定位失败：" + str(error) + " 请连接同一台手机后重试。")
             else:
                 self.restored.emit(True, "已停止。")
+            close = getattr(self.backend, "close", None)
+            if close:
+                close()
 
 
 class RestoreWorker(QThread):

@@ -1,0 +1,709 @@
+{
+  "pymobiledevice3": "11.44.0",
+  "dependencies": [
+    {
+      "name": "ASGIMiddlewareStaticFile",
+      "version": "0.7.0",
+      "license": "",
+      "classifiers": []
+    },
+    {
+      "name": "ASGIWebDAV",
+      "version": "2.1.0",
+      "license": "",
+      "classifiers": []
+    },
+    {
+      "name": "Pygments",
+      "version": "2.20.0",
+      "license": "BSD-2-Clause",
+      "classifiers": []
+    },
+    {
+      "name": "aiofiles",
+      "version": "25.1.0",
+      "license": "Apache-2.0",
+      "classifiers": [
+        "License :: OSI Approved :: Apache Software License"
+      ]
+    },
+    {
+      "name": "annotated-doc",
+      "version": "0.0.5",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.7.0",
+      "license": "",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "ansilogs",
+      "version": "1.1.0",
+      "license": "See bundled license text",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "anyio",
+      "version": "4.12.1",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "arrow",
+      "version": "1.4.0",
+      "license": "",
+      "classifiers": [
+        "License :: OSI Approved :: Apache Software License"
+      ]
+    },
+    {
+      "name": "asgiref",
+      "version": "3.13.0",
+      "license": "BSD-3-Clause",
+      "classifiers": []
+    },
+    {
+      "name": "asn1",
+      "version": "2.8.0",
+      "license": "BSD",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "asttokens",
+      "version": "3.0.2",
+      "license": "Apache 2.0",
+      "classifiers": []
+    },
+    {
+      "name": "av",
+      "version": "19.0.2",
+      "license": "BSD-3-Clause",
+      "classifiers": []
+    },
+    {
+      "name": "bpylist2",
+      "version": "4.1.1",
+      "license": "MIT",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "bytestruct",
+      "version": "0.2.0",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "certifi",
+      "version": "2026.7.22",
+      "license": "MPL-2.0",
+      "classifiers": [
+        "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)"
+      ]
+    },
+    {
+      "name": "cffi",
+      "version": "2.1.1",
+      "license": "MIT-0",
+      "classifiers": []
+    },
+    {
+      "name": "chardet",
+      "version": "7.7.0",
+      "license": "0BSD",
+      "classifiers": []
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.4.7",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "click",
+      "version": "8.4.1",
+      "license": "BSD-3-Clause",
+      "classifiers": []
+    },
+    {
+      "name": "colorama",
+      "version": "0.4.6",
+      "license": "BSD-3-Clause",
+      "classifiers": [
+        "License :: OSI Approved :: BSD License"
+      ]
+    },
+    {
+      "name": "construct",
+      "version": "2.10.70",
+      "license": "MIT",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "cryptography",
+      "version": "50.0.0",
+      "license": "Apache-2.0 OR BSD-3-Clause",
+      "classifiers": []
+    },
+    {
+      "name": "daemonize",
+      "version": "2.5.0",
+      "license": "MIT",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "dataclass-wizard",
+      "version": "1.0.0",
+      "license": "See bundled license text",
+      "classifiers": [
+        "License :: OSI Approved :: Apache Software License"
+      ]
+    },
+    {
+      "name": "defusedxml",
+      "version": "0.7.1",
+      "license": "PSFL",
+      "classifiers": [
+        "License :: OSI Approved :: Python Software Foundation License"
+      ]
+    },
+    {
+      "name": "developer_disk_image",
+      "version": "0.3.0",
+      "license": "",
+      "classifiers": [
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
+      ],
+      "source": {
+        "file": "developer_disk_image-0.3.0.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/52/f5/16c742e98191761d0925ed424468e3bec14503644c84851046602667d3c3/developer_disk_image-0.3.0.tar.gz",
+        "sha256": "1fb9841dcc5cf81e697b6e0a9c14909c059c1893d675b38398a91c08cb7ba8bc"
+      }
+    },
+    {
+      "name": "enum-compat",
+      "version": "0.0.3",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "executing",
+      "version": "2.3.0",
+      "license": "MIT",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "fastapi",
+      "version": "0.162.0",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0",
+      "license": "MIT",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "hyperframe",
+      "version": "6.1.0",
+      "license": "See bundled license text",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "idna",
+      "version": "3.18",
+      "license": "BSD-3-Clause",
+      "classifiers": []
+    },
+    {
+      "name": "ifaddr",
+      "version": "0.2.0",
+      "license": "MIT",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "ipsw-parser",
+      "version": "1.8.4",
+      "license": "See bundled license text",
+      "classifiers": [
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
+      ],
+      "source": {
+        "file": "ipsw_parser-1.8.4.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/d5/82/60b20090243c258542b51364787ada12e4edd6191c6022731955546bc7e0/ipsw_parser-1.8.4.tar.gz",
+        "sha256": "72eda0985f1d39a8fe74385724598feaa2f95ed32cc519eae417d90addb9019d"
+      }
+    },
+    {
+      "name": "ipython",
+      "version": "9.17.1",
+      "license": "BSD-3-Clause",
+      "classifiers": []
+    },
+    {
+      "name": "ipython_pygments_lexers",
+      "version": "1.1.1",
+      "license": "",
+      "classifiers": [
+        "License :: OSI Approved :: BSD License"
+      ]
+    },
+    {
+      "name": "jedi",
+      "version": "0.20.1",
+      "license": "MIT",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "lzfse",
+      "version": "0.4.2.post1",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "markdown-it-py",
+      "version": "4.2.0",
+      "license": "",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "matplotlib-inline",
+      "version": "0.2.2",
+      "license": "BSD-3-Clause",
+      "classifiers": []
+    },
+    {
+      "name": "mdurl",
+      "version": "0.1.2",
+      "license": "",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "opack2",
+      "version": "0.1.0",
+      "license": "See bundled license text",
+      "classifiers": [
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
+      ],
+      "source": {
+        "file": "opack2-0.1.0.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/5d/8a/ac48f032c6e6fbb27733eae8dc51760cae02ad3c3be4252b124d38621fac/opack2-0.1.0.tar.gz",
+        "sha256": "6164a950fba950a440696c77fe69f459288f76c26c7a3cff5f30e54aee9aa6ed"
+      }
+    },
+    {
+      "name": "opentelemetry-api",
+      "version": "1.45.1",
+      "license": "Apache-2.0",
+      "classifiers": []
+    },
+    {
+      "name": "packaging",
+      "version": "26.3",
+      "license": "Apache-2.0 OR BSD-2-Clause",
+      "classifiers": []
+    },
+    {
+      "name": "parso",
+      "version": "0.8.7",
+      "license": "MIT",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "pillow",
+      "version": "13.0.0",
+      "license": "MIT-CMU",
+      "classifiers": []
+    },
+    {
+      "name": "pmd-net-addr",
+      "version": "0.0.3",
+      "license": "GPL-3.0-or-later",
+      "classifiers": [],
+      "source": {
+        "file": "pmd_net_addr-0.0.3.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/ce/bb/e24ffb9af4243050b54fbaf08393879456f1bd98996b66c6df509106ad2b/pmd_net_addr-0.0.3.tar.gz",
+        "sha256": "1b0fcb3b77f30076237360eb4cf0243483278a2650fd4a194985cc69b1de07e5"
+      }
+    },
+    {
+      "name": "pmd-net-proto",
+      "version": "0.0.3",
+      "license": "GPL-3.0-or-later",
+      "classifiers": [],
+      "source": {
+        "file": "pmd_net_proto-0.0.3.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/59/ec/eed1b9570cec3e30b993dee84fa5d16be3399189ffce8c0b46373727d20e/pmd_net_proto-0.0.3.tar.gz",
+        "sha256": "e23d7d68cd13399ff2bf0613f9756e221ead6fd54010cf85186c2ab650631cd7"
+      }
+    },
+    {
+      "name": "pmd-pytcp",
+      "version": "0.3.8",
+      "license": "GPL-3.0-or-later",
+      "classifiers": [],
+      "source": {
+        "file": "pmd_pytcp-0.3.8.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/f8/74/e9a79796df33932558913d309fba9015080c4e241cdb61e6280421db4be7/pmd_pytcp-0.3.8.tar.gz",
+        "sha256": "a26e76e735a04bb6bbcec0793aadcd4f20f03778fd29971a3e2747ce394e9795"
+      }
+    },
+    {
+      "name": "prompt_toolkit",
+      "version": "3.0.53",
+      "license": "",
+      "classifiers": [
+        "License :: OSI Approved :: BSD License"
+      ]
+    },
+    {
+      "name": "psutil",
+      "version": "7.2.2",
+      "license": "BSD-3-Clause",
+      "classifiers": []
+    },
+    {
+      "name": "pure_eval",
+      "version": "0.2.4",
+      "license": "MIT",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "pycparser",
+      "version": "3.0",
+      "license": "BSD-3-Clause",
+      "classifiers": []
+    },
+    {
+      "name": "pycrashreport",
+      "version": "2.0.0",
+      "license": "See bundled license text",
+      "classifiers": [
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
+      ],
+      "source": {
+        "file": "pycrashreport-2.0.0.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/aa/9c/1e1c2d84f746972cbe4d5e65f816008c64e427fc680f55115aa313683c23/pycrashreport-2.0.0.tar.gz",
+        "sha256": "31d5e32faa3a047fe01e923bde3eaf1ec86b23e264babf2fc8f7b61fe4812342"
+      }
+    },
+    {
+      "name": "pycryptodome",
+      "version": "4.2.0",
+      "license": "BSD-2-Clause AND Unlicense AND MIT",
+      "classifiers": []
+    },
+    {
+      "name": "pydantic",
+      "version": "2.13.4",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "pydantic_core",
+      "version": "2.46.4",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "pygnuutils",
+      "version": "0.1.1",
+      "license": "See bundled license text",
+      "classifiers": [
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
+      ],
+      "source": {
+        "file": "pygnuutils-0.1.1.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/03/20/6a828fe03d6586241b824ee06c7da854ea351716006a62fd2548eaa5710b/pygnuutils-0.1.1.tar.gz",
+        "sha256": "51ab4f27deb59102b7a04192f7585ff2b3a9de03739982f0b19d3cd4d16bea76"
+      }
+    },
+    {
+      "name": "pyimg4",
+      "version": "0.8.8",
+      "license": "See bundled license text",
+      "classifiers": []
+    },
+    {
+      "name": "pyiosbackup",
+      "version": "0.2.4",
+      "license": "See bundled license text",
+      "classifiers": [
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
+      ],
+      "source": {
+        "file": "pyiosbackup-0.2.4.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/46/ab/c7c3caf6785ced43d02c8c37be3c84720c40d6a9b237eb2ff560af4114e1/pyiosbackup-0.2.4.tar.gz",
+        "sha256": "10b4d2a11c9bedc93a5467cad3addbe18bc2dc434156920e7223226ed4d0beb7"
+      }
+    },
+    {
+      "name": "pykdebugparser",
+      "version": "1.10.0",
+      "license": "See bundled license text",
+      "classifiers": []
+    },
+    {
+      "name": "pylzss",
+      "version": "0.3.4",
+      "license": "GNU LGPL v3",
+      "classifiers": [
+        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)"
+      ],
+      "source": {
+        "file": "pylzss-0.3.4.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/7d/dc/9ae75ede398b7adf538f2d1dca0f96c645c4e96789f8039340a0ed6a8a8f/pylzss-0.3.4.tar.gz",
+        "sha256": "16818631742488e53a34fda0d402d80edb2b812e11877801e21a9e5ce9b9db1c"
+      }
+    },
+    {
+      "name": "pymobiledevice3",
+      "version": "11.44.0",
+      "license": "GPL-3.0-or-later",
+      "classifiers": [],
+      "source": {
+        "file": "pymobiledevice3-11.44.0.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/6a/5c/f8b5c0ee52169f2c80584b7efc6fd2f417e8802d1a6455418185589dd1a5/pymobiledevice3-11.44.0.tar.gz",
+        "sha256": "92e32e8278c7a6584d51c645a5d603e5de89deb8391462cdab5d1ac06e48af51"
+      }
+    },
+    {
+      "name": "python-dateutil",
+      "version": "3.0.0",
+      "license": "Dual License",
+      "classifiers": [
+        "License :: OSI Approved :: BSD License",
+        "License :: OSI Approved :: Apache Software License"
+      ]
+    },
+    {
+      "name": "python-pcapng",
+      "version": "2.1.1",
+      "license": "Apache-2.0",
+      "classifiers": [
+        "License :: OSI Approved :: Apache Software License"
+      ]
+    },
+    {
+      "name": "pytun-pmd3",
+      "version": "3.0.3",
+      "license": "See bundled license text",
+      "classifiers": [
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
+      ],
+      "source": {
+        "file": "pytun_pmd3-3.0.3.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/5e/8a/6e73c70ddf5fdf9cf359cdc458f38cf795c4a653c870a4a49c8768e5db86/pytun_pmd3-3.0.3.tar.gz",
+        "sha256": "7fa822092139b4b77e08fad9233dbd4a6fcca2cf2423b0775db962ca5e87a017"
+      }
+    },
+    {
+      "name": "pyusb",
+      "version": "1.3.1",
+      "license": "",
+      "classifiers": [
+        "License :: OSI Approved :: BSD License"
+      ]
+    },
+    {
+      "name": "pywin32",
+      "version": "312",
+      "license": "PSF",
+      "classifiers": [
+        "License :: OSI Approved :: Python Software Foundation License"
+      ]
+    },
+    {
+      "name": "qh3",
+      "version": "1.9.4",
+      "license": "",
+      "classifiers": [
+        "License :: OSI Approved :: BSD License"
+      ]
+    },
+    {
+      "name": "questionary",
+      "version": "2.1.1",
+      "license": "MIT",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "remotezip2",
+      "version": "0.0.2",
+      "license": "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "source": {
+        "file": "remotezip2-0.0.2.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/3f/47/94335875a4d5339f64943c1a68900f59a91ad987ab8fcd8e5201839e7cc5/remotezip2-0.0.2.tar.gz",
+        "sha256": "db38fb14d0c297af6da8756808bb25f9d3b2c23c7639a14f7a74794b2fc9a261"
+      }
+    },
+    {
+      "name": "requests",
+      "version": "2.34.2",
+      "license": "Apache-2.0",
+      "classifiers": [
+        "License :: OSI Approved :: Apache Software License"
+      ]
+    },
+    {
+      "name": "rich",
+      "version": "15.0.0",
+      "license": "MIT",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "shellingham",
+      "version": "1.5.4",
+      "license": "ISC License",
+      "classifiers": [
+        "License :: OSI Approved :: ISC License (ISCL)"
+      ]
+    },
+    {
+      "name": "six",
+      "version": "1.17.0",
+      "license": "MIT",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "srptools",
+      "version": "1.0.1",
+      "license": "BSD 3-Clause License",
+      "classifiers": [
+        "License :: OSI Approved :: BSD License"
+      ]
+    },
+    {
+      "name": "stack-data",
+      "version": "0.6.3",
+      "license": "MIT",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "starlette",
+      "version": "1.10.0",
+      "license": "BSD-3-Clause",
+      "classifiers": []
+    },
+    {
+      "name": "termcolor",
+      "version": "3.3.0",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "traitlets",
+      "version": "5.16.1",
+      "license": "See bundled license text",
+      "classifiers": [
+        "License :: OSI Approved :: BSD License"
+      ]
+    },
+    {
+      "name": "typer",
+      "version": "0.25.1",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "typer-injector",
+      "version": "0.3.0",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.3",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.16.0",
+      "license": "PSF-2.0",
+      "classifiers": []
+    },
+    {
+      "name": "tzdata",
+      "version": "2026.5",
+      "license": "Apache-2.0",
+      "classifiers": []
+    },
+    {
+      "name": "urllib3",
+      "version": "2.7.0",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "uvicorn",
+      "version": "0.54.0",
+      "license": "BSD-3-Clause",
+      "classifiers": []
+    },
+    {
+      "name": "wcwidth",
+      "version": "0.9.4",
+      "license": "",
+      "classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ]
+    },
+    {
+      "name": "wsproto",
+      "version": "1.3.2",
+      "license": "MIT",
+      "classifiers": []
+    },
+    {
+      "name": "xmltodict",
+      "version": "1.0.4",
+      "license": "MIT",
+      "classifiers": []
+    }
+  ]
+}

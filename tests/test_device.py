@@ -11,11 +11,11 @@ def probe_output(version="16.7.16"):
                            "ProductVersion": version}).decode()
 
 
-def test_new_ios_is_rejected(monkeypatch):
+def test_new_ios_is_discovered(monkeypatch):
     backend = DeviceBackend()
     monkeypatch.setattr(backend, "command", lambda *a, **kw: probe_output("17.0"))
-    with pytest.raises(DeviceError, match="17 以下"):
-        backend.probe()
+    assert backend.probe().version == "17.0"
+    assert backend._modern is None
 
 
 def test_preparation_and_reset_keep_same_device(monkeypatch):

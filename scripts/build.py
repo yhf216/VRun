@@ -19,7 +19,9 @@ def copy_runtime_notices(target: Path):
     import importlib.metadata as metadata
     license_root = target / "LICENSES"
     license_root.mkdir(parents=True, exist_ok=True)
-    for name in ("PySide6_Essentials", "shiboken6", "geopy", "geographiclib", "winotify"):
+    from archive_ios17 import distributions
+    names = {"PySide6_Essentials", "shiboken6", "geopy", "geographiclib", "winotify", *distributions()}
+    for name in sorted(names):
         distribution = metadata.distribution(name)
         for file in distribution.files or []:
             if any(part.lower() in ("licenses", "license", "copying") for part in file.parts) or file.name.lower().startswith(("license", "copying", "notice")):
@@ -28,6 +30,10 @@ def copy_runtime_notices(target: Path):
                     destination = license_root / name / Path(*file.parts)
                     destination.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(path, destination)
+    # Wintun retains its separate prebuilt-driver distribution license.
+    import pytun_pmd3
+    wintun_license = Path(pytun_pmd3.__file__).parent / "wintun" / "LICENSE.txt"
+    shutil.copy2(wintun_license, license_root / "Wintun.txt")
     python_license = Path(sys.base_prefix) / "LICENSE_PYTHON.txt"
     if not python_license.is_file():
         python_license = Path(sys.base_prefix) / "LICENSE.txt"
@@ -68,10 +74,16 @@ def main():
     args = parser.parse_args()
     os.chdir(ROOT)
     if not args.prepare_only:
+        subprocess.run([sys.executable, "-m", "PyInstaller", "--noconfirm", "ios17_helper/helper.spec"], check=True)
         subprocess.run([sys.executable, "-m", "PyInstaller", "--noconfirm", "VRun.spec"], check=True)
     target = ROOT / "dist/VRun"
     if not (target / "VRun.exe").is_file():
         raise SystemExit("dist/VRun/VRun.exe is missing")
+    helper = ROOT / "dist/VRun-iOS17"
+    if not (helper / "VRun-iOS17.exe").is_file():
+        raise SystemExit("dist/VRun-iOS17/VRun-iOS17.exe is missing")
+    subprocess.run([str(helper / "VRun-iOS17.exe"), "--check"], check=True)
+    shutil.copytree(helper, target / "_internal/ios17", dirs_exist_ok=True)
     copy_release_material(target)
     release = ROOT / "release"
     release.mkdir(exist_ok=True)

@@ -1,3 +1,5 @@
 PySide6-Essentials==6.12.0
 geopy==2.4.1
 winotify==1.1.0
+# Independent iOS 17+ helper; never imported by the legacy device path.
+-r requirements-ios17.txt
