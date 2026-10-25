@@ -1,5 +1,5 @@
 ﻿; SPDX-License-Identifier: MPL-2.0
-#define AppVersion "0.3.0"
+#define AppVersion "0.3.1"
 [Setup]
 AppId={{BF65DE62-0A7C-48A4-B1E4-09B86F0B9457}
 AppName=VRun
@@ -28,7 +28,7 @@ CloseApplications=yes
 CloseApplicationsFilter=*.exe,*.dll,*.pyd
 RestartApplications=no
 MinVersion=10.0
-VersionInfoVersion=0.3.0.0
+VersionInfoVersion=0.3.1.0
 
 [Languages]
 Name: "chinesesimp"; MessagesFile: "compiler:Default.isl,ChineseSimplified.isl"

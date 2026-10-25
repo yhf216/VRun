@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from pathlib import Path
 import ast
 import math
+from bisect import bisect_right
+from functools import cached_property
+from itertools import accumulate
 
 from geopy.distance import geodesic
 
@@ -24,7 +27,25 @@ class Route:
 
     @property
     def length_m(self) -> float:
-        return sum(self.segment_lengths)
+        return self.cumulative_lengths[-1]
+
+    @cached_property
+    def cumulative_lengths(self) -> tuple[float, ...]:
+        return tuple(accumulate(self.segment_lengths, initial=0.0))
+
+    def position_at(self, distance_m: float) -> Point:
+        """Interpolate by travelled arc length, independent of route point density."""
+        if not math.isfinite(distance_m):
+            raise ValueError("路线距离必须是有限数值")
+        if distance_m <= 0:
+            return self.points[0]
+        if distance_m >= self.length_m:
+            return self.points[-1]
+        segment = bisect_right(self.cumulative_lengths, distance_m) - 1
+        start, end = self.points[segment:segment + 2]
+        ratio = (distance_m - self.cumulative_lengths[segment]) / self.segment_lengths[segment]
+        return Point(start.lat + (end.lat - start.lat) * ratio,
+                     start.lng + (end.lng - start.lng) * ratio)
 
     def samples(self, speed: float, interval: float = 0.25):
         """Yield interpolated points and time deltas, including the closing segment."""

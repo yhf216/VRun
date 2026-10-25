@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MPL-2.0
 import threading
-import time
+from time import monotonic
 
 from PySide6.QtCore import QThread, Signal
 
@@ -54,29 +54,13 @@ class RunWorker(QThread):
             self.device = device
             if self.cancel.is_set():
                 return
-            self.ready.emit(device)
             location_attempted = True
+            initial_started = monotonic()
             self.backend.set_location(device, self.route.points[0], self.cancel)
+            origin = monotonic()
+            self.ready.emit(device)
             self.progress.emit(0.0)
-            deadline = time.monotonic()
-            while not self.cancel.is_set():
-                lap_moved = 0.0
-                for point, duration in self.route.samples(self.speed):
-                    deadline += duration
-                    if self.cancel.wait(max(0, deadline - time.monotonic())):
-                        raise Cancelled()
-                    self.backend.set_location(device, point, self.cancel)
-                    lap_moved += duration * self.speed
-                    self.progress.emit(min(1.0, lap_moved / self.route.length_m))
-                    # A delayed USB command must not cause a burst of catch-up updates.
-                    if time.monotonic() - deadline > duration:
-                        deadline = time.monotonic()
-                if self.cancel.is_set():
-                    break
-                notify = self.counter.complete_lap()
-                self.lap.emit(self.counter.laps, self.counter.distance_m)
-                if notify:
-                    self.target_reached.emit(self.counter.distance_m)
+            self._play(device, origin, origin - initial_started)
         except Cancelled:
             pass
         except Exception as error:
@@ -94,6 +78,55 @@ class RunWorker(QThread):
             close = getattr(self.backend, "close", None)
             if close:
                 close()
+
+    def _play(self, device, origin, initial_latency):
+        lap_seconds = self.route.length_m / self.speed
+        # Short loops still need intermediate coordinates before returning to the start.
+        interval = min(0.25, lap_seconds / 4)
+        if initial_latency >= lap_seconds / 4:
+            raise DeviceError("当前设备通信速度无法维持设定的跑步速度，请降低速度或使用更长的路线。")
+        latency = min(initial_latency, interval)
+        next_update = interval
+        last_delivery = origin
+        while not self.cancel.is_set():
+            lap_end = (self.counter.laps + 1) * lap_seconds
+            target_time = min(next_update, lap_end)
+            if self.cancel.wait(max(0, origin + target_time - latency - monotonic())):
+                raise Cancelled()
+            sent = monotonic()
+            if sent - last_delivery > 2.0:
+                raise DeviceError("设备响应过慢，无法维持设定速度，已停止模拟。请检查 USB 连接后重试。")
+            # Skip obsolete samples instead of resetting the time origin or replaying a backlog.
+            # Estimate arrival time because the native USB command itself can take >250 ms.
+            target_time = min(lap_end, max(target_time, sent - origin + latency))
+            if lap_end - target_time <= max(interval, latency):
+                # Leave time for the endpoint command; do not send a nearly-complete
+                # sample that would keep the device busy past the lap deadline.
+                target_time = lap_end
+                if self.cancel.wait(max(0, origin + lap_end - latency - monotonic())):
+                    raise Cancelled()
+                sent = monotonic()
+            at_end = target_time == lap_end
+            lap_moved = self.route.length_m if at_end else (
+                target_time - self.counter.laps * lap_seconds) * self.speed
+            point = self.route.position_at(lap_moved)
+            self.backend.set_location(device, point, self.cancel)
+            delivered = monotonic()
+            command_seconds = delivered - sent
+            if delivered - last_delivery > 2.0 or command_seconds >= lap_seconds / 4:
+                raise DeviceError("设备响应过慢，无法维持设定速度，已停止模拟。请检查 USB 连接或降低速度后重试。")
+            latency = 0.7 * latency + 0.3 * command_seconds
+            last_delivery = delivered
+            self.progress.emit(min(1.0, lap_moved / self.route.length_m))
+            if at_end:
+                # A faster-than-predicted command must not complete a lap ahead of schedule.
+                if self.cancel.wait(max(0, origin + lap_end - monotonic())):
+                    raise Cancelled()
+                notify = self.counter.complete_lap()
+                self.lap.emit(self.counter.laps, self.counter.distance_m)
+                if notify:
+                    self.target_reached.emit(self.counter.distance_m)
+            next_update = target_time + interval
 
 
 class RestoreWorker(QThread):

@@ -4,6 +4,14 @@ import pytest
 from vrun.device import Device, DeviceError
 from vrun.routes import Point, Route
 from vrun.worker import RunWorker
+from tests.test_speed import Clock, Cancellation
+
+
+@pytest.fixture
+def clock(monkeypatch):
+    value = Clock()
+    monkeypatch.setattr("vrun.worker.monotonic", value.monotonic)
+    return value
 
 
 class FakeBackend:
@@ -28,9 +36,10 @@ def tiny_route():
     return Route(Path("test.txt"), (a, b, a), (0.001, 0.001))
 
 
-def test_complete_loop_before_counting_and_reset_after_stop(application):
+def test_complete_loop_before_counting_and_reset_after_stop(application, clock):
     backend = FakeBackend()
     worker = RunWorker(backend, tiny_route(), 10, 0.002)
+    worker.cancel = Cancellation(clock)
     laps, reminders = [], []
     worker.lap.connect(lambda count, distance: (laps.append(count), worker.stop()))
     worker.target_reached.connect(reminders.append)
@@ -41,9 +50,10 @@ def test_complete_loop_before_counting_and_reset_after_stop(application):
     assert backend.events[-1] == ("reset", "same-device")
 
 
-def test_failure_still_restores_without_counting_lap(application):
+def test_failure_still_restores_without_counting_lap(application, clock):
     backend = FakeBackend(fail_update=True)
     worker = RunWorker(backend, tiny_route(), 10, None)
+    worker.cancel = Cancellation(clock)
     errors, laps = [], []
     worker.failed.connect(errors.append)
     worker.lap.connect(lambda *args: laps.append(args))
@@ -53,27 +63,33 @@ def test_failure_still_restores_without_counting_lap(application):
     assert backend.events[-1] == ("reset", "same-device")
 
 
-def test_cancel_before_start_does_not_change_location(application):
+def test_cancel_before_start_does_not_change_location(application, clock):
     backend = FakeBackend()
     worker = RunWorker(backend, tiny_route(), 10, None)
+    worker.cancel = Cancellation(clock)
     worker.stop()
     worker.run()
     assert backend.events == []
 
 
-def test_progress_only_advances_after_successful_coordinate_updates(application):
+def test_progress_only_advances_after_successful_coordinate_updates(application, clock):
     backend = FakeBackend()
     worker = RunWorker(backend, tiny_route(), 10, None)
+    worker.cancel = Cancellation(clock)
     updates = []
     worker.progress.connect(lambda fraction: updates.append((fraction, len(backend.events))))
     worker.lap.connect(lambda *args: worker.stop())
     worker.run()
-    assert [entry[0] for entry in updates] == pytest.approx([0, 0.5, 1])
-    assert [entry[1] for entry in updates] == [1, 2, 3]
+    fractions = [entry[0] for entry in updates]
+    assert fractions[0] == 0 and fractions[-1] == 1
+    assert len(fractions) >= 3
+    assert all(a < b for a, b in zip(fractions, fractions[1:]))
+    assert [entry[1] for entry in updates] == list(range(1, len(updates) + 1))
 
 
-def test_failed_coordinate_update_does_not_advance_visual_progress(application):
+def test_failed_coordinate_update_does_not_advance_visual_progress(application, clock):
     worker = RunWorker(FakeBackend(fail_update=True), tiny_route(), 10, None)
+    worker.cancel = Cancellation(clock)
     updates = []
     worker.progress.connect(updates.append)
     worker.run()
