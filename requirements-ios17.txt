@@ -5,7 +5,7 @@ ASGIWebDAV==2.1.0
 Pygments==2.20.0
 aiofiles==25.1.0
 annotated-doc==0.0.5
-annotated-types==0.7.0
+annotated-types==0.8.0
 ansilogs==1.1.0
 anyio==4.12.1
 arrow==1.4.0
