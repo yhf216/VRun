@@ -83,7 +83,7 @@ termcolor==3.3.0
 traitlets==5.16.1
 typer==0.25.1
 typer-injector==0.3.0
-typing-inspection==0.4.3
+typing-inspection==0.4.4
 typing_extensions==4.16.0
 tzdata==2026.5
 urllib3==2.7.0
